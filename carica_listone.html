@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>CSV to JSON</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</head>
+<body>
+  <a href="componi_squadra.html">componi squadra</a>
+  <BR>
+  CARICA FILE
+  <input type="file" id="file" accept=".xlsx,.xls,.csv"/>
+
+
+
+
+  <h1>FILTRI:</h1> 
+  <h3>RUOLI  </h3><div id="filtroRuolo"></div>
+  <h3>CERCA GIOCATORE  </h3><div id="filtroRicerca"><input type="text" id="barraRicerca"></div>
+
+
+
+  <div id="output"></div>
+<br>
+
+
+
+<h1>NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO</h1>
+<div id="res"></div>
+  <!-- <script  src="file2Json.js"></script> -->
+    <script  src="fileParser.js"></script>
+
+    <SCRIPT src="manage_Json.js"></SCRIPT>
+    <script>
+  //gestione filtro ruoli
+  let roles=[...new Set(JSON.parse(localStorage.getItem('listone')).map(item=>item['Ruolo']))]
+
+  roles.forEach(value=>{
+    document.getElementById('filtroRuolo').insertAdjacentHTML('beforeend',`<input type='checkbox' id='${value}' value='${value}'>${value}    `)
+    document.getElementById(`${value}`).addEventListener('change',function(e){
+console.log(e.target)
+      if(e.target.checked) {filteredRoles.add(e.target.value)} else{ 
+        filteredRoles.delete(e.target.value)
+    }
+    renderTable()
+    })
+  })
+</script>
+
+</body>
+</html>

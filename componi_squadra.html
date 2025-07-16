@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestione Squadre</title>
+ <style>
+  table {
+    width: 300px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+  }
+
+  /* AGGIUNTE: Layout orizzontale */
+  #contenitoreSquadre {
+    display: flex;
+    flex-wrap: nowrap; /* se vuoi evitare che vadano a capo */
+    overflow-x: auto; /* scrollbar se troppe squadre */
+    gap: 20px;
+    padding: 10px;
+  }
+
+  .card-squadra {
+    border: 1px solid #999;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #fafafa;
+    min-width: 350px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* evita che si stringano */
+  }
+
+  .card-squadra h2 {
+    margin-top: 10px;
+  }
+</style>
+
+</head>
+<body onload="ripristinaPagina()">
+    <a href="carica_listone.html">LISTONE</a>
+
+  <button onclick="richiediRuoli()">Modifica numero giocatori</button>
+  <div id="contenitoreSquadre"></div>
+  <button id="aggiungiNuovaSquadra" onclick="aggiungiSquadra()">Aggiungi nuova squadra</button>
+<script src="utils.js"></script>
+  <script>
+    let listone = JSON.parse(localStorage.getItem('listone')) || [];
+    if(listone.length==0) document.write('noooooooooooo carica') // Assicurati che il listone sia già salvato in localStorage
+    let roles = [...new Set(listone.map(item => item['Ruolo']))];
+    let [numPor, numDif, numCC, numAtt] = checkNumeriRuoli();
+
+   
+
+    
+
+    
+  </script>
+  <script src="print_page.js"></script>
+  <script src="save_page.js"></script>
+  <script src="update_page.js"></script>
+</body>
+</html>
