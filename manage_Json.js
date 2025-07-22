@@ -61,7 +61,9 @@ function renderTable() {
 }
 window.checker=function(event,index){
   let player=listone[index]
-  event.target.checked ? player.Obiettivo='checked' : ''
+  console.log(event.target)
+  player.Obiettivo = event.target.checked ? 'checked' : ''; // aggiorna entrambi i casi
+  console.log(player.Obiettivo)
   localStorage.setItem('listone',JSON.stringify(listone))
 //renderTable()
 }
