@@ -1,59 +1,82 @@
 function aggiungiSquadra() {
-      [numPor, numDif, numCC, numAtt] = checkNumeriRuoli();
 
-      const contenitore = document.getElementById("contenitoreSquadre");
-      const ultimoNumero = Array.from(contenitore.children)
-        .map(div => parseInt(div.id.replace('containerSquadra', '')))
-        .filter(n => !isNaN(n))
-        .reduce((max, n) => Math.max(max, n), 0);
+  const contenitore = document.getElementById("contenitoreSquadre");
+  const ultimoNumero = Array.from(contenitore.children) //ottieni numero degli ultimi container creati
+    .map(div => parseInt(div.id.replace('containerSquadra', '')))
+    .filter(n => !isNaN(n))
+    .reduce((max, n) => Math.max(max, n), 0);
 
-      const nuovoNumero = ultimoNumero + 1;
-      const nuovaDiv = document.createElement("div");
-nuovaDiv.id = `containerSquadra${nuovoNumero}`;
-nuovaDiv.classList.add('card-squadra');
+  const nuovoNumero = ultimoNumero + 1;
 
-      const prospetto = 
-        printRowsFromRole("PORTIERI", numPor, roles.find(r => r.startsWith("P")), nuovoNumero) +
-        printRowsFromRole("DIFENSORI", numDif, roles.find(r => r.startsWith("D")), nuovoNumero) +
-        printRowsFromRole("CENTROCAMPISTI", numCC, roles.find(r => r.startsWith("C")), nuovoNumero) +
-        printRowsFromRole("ATTACCANTI", numAtt, roles.find(r => r.startsWith("A")), nuovoNumero) +
-        `<H1>TOTALE SQUADRA:</H1><H2 id='totale_${nuovoNumero}'>0</H2>`+
-        `<button onclick='eliminaSquadra(${nuovoNumero})'>Elimina</button>`;
-
-      nuovaDiv.innerHTML = prospetto;
-      contenitore.appendChild(nuovaDiv);
-      localStorage.setItem('squadra' + nuovoNumero, JSON.stringify([]));
-      salvaPagina();
-    }
+  const nuovaSquadra = []; 
+  localStorage.setItem('squadra' + nuovoNumero, JSON.stringify(nuovaSquadra));
+  renderSquadra(nuovoNumero, nuovaSquadra);
+}
 
    
 
-    function printRowsFromRole(textRole, numRuolo, codeRole, numTeam) {
-      let selects = "";
-      let options = "";
+   function renderSquadra(num, team) { 
+  const contenitore = document.getElementById("contenitoreSquadre");
+  const div = document.createElement("div");
+  div.id = "containerSquadra" + num;
+  div.classList.add("card-squadra");
+  div.innerHTML = printRows(team,num);
+  contenitore.appendChild(div);
+  aggiornaTotale(num); // Aggiorna i totali all'avvio
+}
 
-      listone.sort((a, b) => b.Quotazione - a.Quotazione);
-      listone.forEach(player => {
-        if (player['Ruolo'] == codeRole) {
-          options += `<option value='${player['Cod.']}'>${player['Giocatore']}--${player['Quotazione']}</option>`;
-        }
-      });
+function ripristinaPagina() {
+  const contenitore = document.getElementById("contenitoreSquadre");
+  contenitore.innerHTML = ""; 
 
-      for (let i = 0; i < numRuolo; i++) {
-        selects += `<tr><td>
-            <select class='sel${numTeam}' onchange='AggiornaQuotazione(this)'>
-              <option value='0'>SCEGLI</option>
-              ${options}
-            </select></td>
-            <td class='quotazione'></td>
-            <td class='prezzo'><input type='number' onchange='aggiornaPrezzoGiocatore(this)'></td>
-          </tr>`;
-      }
+  Object.keys(localStorage)
+    .filter(key => key.startsWith("squadra"))
+    .sort((a,b)=>{return a[a.length-1]>b[b.length-1] ?  1: -1}) //ordina la stampa delle squadre
+    .forEach(key => {
+      console.log(key)
+      const numSquadra = key.replace("squadra", "");
+      const giocatori = JSON.parse(localStorage.getItem(key));
+      renderSquadra(numSquadra, giocatori);
+    });
+}
+function printRows(team,num){
+  const [numPor, numDif, numCC, numAtt] = checkNumeriRuoli(); 
 
-      return `<h2>${textRole}</h2>
-        <table>
-          <tr><th>Giocatore</th><th>Quotazione</th><th>Prezzo</th></tr>
-          ${selects}
-        </table><h1>totale :</h1><h2 id='totale_${codeRole}_${Number(numTeam)}'>0</h2>`;
+  const ruoliRender = [
+    ["PORTIERI", "P", numPor],
+    ["DIFENSORI", "D", numDif],
+    ["CENTROCAMPISTI", "C", numCC],
+    ["ATTACCANTI", "A", numAtt]
+  ];
+
+  let html = "";
+
+  for (const [titolo, codiceRuolo, numero] of ruoliRender) {
+    html += `<h2>${titolo}</h2><table>
+      <tr><th>Giocatore</th><th>Quotazione</th><th>Prezzo</th></tr>`;
+
+    const playersRuolo = team.filter(p => p.Ruolo === codiceRuolo);
+    for (let i = 0; i < numero; i++) {
+      const player = playersRuolo[i];
+      html += `<tr><td>
+        <select class='sel${num}' onchange='AggiornaQuotazione(this)' data-prev='${player?.["Cod."] || ""}'>
+          <option value='0'>SCEGLI</option>
+          ${listone.filter(p => p.Ruolo === codiceRuolo).map(p => 
+            `<option value='${p["Cod."]}' ${checkSelection(player,p)}>
+              ${p["Giocatore"]}${checkSelection(player,p)=="selected"? '':(['--',p["Quotazione"]]).join('')}
+            </option>`).join("")}
+        </select></td>
+        <td class='quotazione'>${player ? player.Quotazione : ""}</td>
+        <td class='prezzo'><input type='number' value='${player?.prezzo || ""}' onchange='aggiornaPrezzoGiocatore(this)'></td>
+      </tr>`;
     }
+
+    html += `</table><h1>Totale:</h1><h2 id='totale_${codiceRuolo}_${num}'>0</h2>`;
+  }
+    html += `<h1>TOTALE SQUADRA:</h1><h2 id='totale_${num}'>0</h2>
+           <button onclick='eliminaSquadra(${num})'>Elimina</button>`;
+           return html;
+}
+
+
     

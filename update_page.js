@@ -4,10 +4,9 @@ function aggiornaPrezzoGiocatore(inputElement) {
   const codice = select.value;
   const nuovoPrezzo = Number(inputElement.value);
     
-  // Se non c'è un giocatore selezionato, non fare nulla
   if (!codice) return;
 
-  // Trova il numero squadra (es. da "containerSquadra3" => "3")
+  //trova il numero squadra)
   const numDiv = inputElement.closest('div').id.replace('containerSquadra', '');
   const squadraKey = 'squadra' + numDiv;
 
@@ -25,9 +24,6 @@ function aggiornaPrezzoGiocatore(inputElement) {
   // Salva la squadra aggiornata nel localStorage
   localStorage.setItem(squadraKey, JSON.stringify(team));
 aggiornaTotale(numDiv)
-
-  // Salva l'intera pagina (opzionale, se vuoi mantenere il backup)
-  salvaPagina();
 }
 
  function aggiornaTotale(numDiv) {
@@ -50,45 +46,61 @@ aggiornaTotale(numDiv)
 }
 
     function AggiornaQuotazione(selectElement) {
-    
+      //ottieni giocatore e suoi attributi
       const selectedPlayer = listone.find(p => p['Cod.'] == selectElement.value);
       const tdQuotazione = selectElement.closest('tr').querySelector('.quotazione');
       const inputPrezzo = selectElement.closest('tr').querySelector('.prezzo input');
       const numDiv = selectElement.closest('div').id.replace('containerSquadra', '');
 
-      // 🔧 Memorizza il precedente selezionato
+      //precedente selezionato
       const prevCodice = selectElement.getAttribute('data-prev');
+      //attuale selezionato
       const newCodice = selectElement.value;
-
+//in caso di "SCEGLI" come selezione
       if (!selectedPlayer || selectedPlayer == undefined || newCodice == "0") {
         tdQuotazione.textContent = '';
         inputPrezzo.value = '';
 
-        // 🔧 Rimuovi solo il giocatore deselezionato
+        // rimuovi solo il giocatore deselezionato
         let team = JSON.parse(localStorage.getItem('squadra' + numDiv)) || [];
         team = team.filter(player => player['Cod.'] != prevCodice);
         localStorage.setItem('squadra' + numDiv, JSON.stringify(team));
         aggiornaTotale(numDiv);
-        salvaPagina();
+        
         return;
       }
+// ripristino il testo della option del selezionato precedente
+if (prevCodice && prevCodice !== "0") {
+  const prevPlayer = listone.find(p => p["Cod."] == prevCodice);
+  if (prevPlayer) {
+    Array.from(selectElement.options).forEach(opt => {
+      if (opt.value === prevCodice) {
+        opt.textContent = `${prevPlayer["Giocatore"]}--${prevPlayer["Quotazione"]}`;
+      }
+    });
+  }
+}
 
-      // 🔧 Salva il codice attuale per futuro controllo
+      
+      
+
+      // salva il codice attuale per futuro controllo
       selectElement.setAttribute('data-prev', newCodice);
-
+      //modifica attributi 
       tdQuotazione.textContent = selectedPlayer['Quotazione'];
       selectElement.options[selectElement.selectedIndex].textContent =
         selectElement.options[selectElement.selectedIndex].textContent.split('--')[0];
 
       inputPrezzo.value = selectedPlayer['prezzo'] || selectedPlayer['Quotazione'];
       selectedPlayer.prezzo = inputPrezzo.value;
-
+      //salvataggio in json localStorage
       const team = [];
       let i = 0;
 
       Array.from(document.getElementsByClassName(`sel${numDiv}`)).forEach(sel => {
         if (newCodice == sel.value) {
           i++;
+          //controllo ripetizione selezione
           if (i == 2) {
             tdQuotazione.textContent = '';
             inputPrezzo.value = '';
@@ -108,14 +120,12 @@ aggiornaTotale(numDiv)
 
       localStorage.setItem('squadra' + numDiv, JSON.stringify(team));
       aggiornaTotale(numDiv);
-      salvaPagina();
     }
 
      function eliminaSquadra(num) {
       const container = document.getElementById('containerSquadra' + num);
       if (container) container.remove();
       localStorage.removeItem('squadra' + num);
-      salvaPagina();
     }
 
     ////////////////////////////////////////////////////////
