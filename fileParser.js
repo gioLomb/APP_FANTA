@@ -45,8 +45,8 @@ function checkLocalStorage(listoneCandidato) {
     storedParsed.map(player => [String(player[headers[0]]), player]) //map per ricerca istantanea in base al codice
   );
 
-  const codsListoneCandidato = listoneCandidato.map(item => String(item[headers[0]]));
-  const codsStored = storedParsed.map(item => String(item[headers[0]]));
+  const codsListoneCandidato = listoneCandidato.map(item => String(item[headers[0]])).sort((a,b)=>a<b);
+  const codsStored = storedParsed.map(item => String(item[headers[0]])).sort((a,b)=>a<b);
 
   if (codsListoneCandidato.toString() === codsStored.toString()) {
     alert('uguale');
